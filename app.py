@@ -3,9 +3,14 @@ import json
 import os
 
 app = Flask(__name__)
+app.secret_key = 'supersecretkey'  # Replace this with a more secure one in production
 
 # Load products from JSON
 def load_products():
+    def save_products(data):
+    with open('data/products.json', 'w') as f:
+        json.dump(data, f, indent=4)
+
     with open('data/products.json') as f:
         return json.load(f)
 
@@ -18,10 +23,6 @@ def products():
     items = load_products()
     return render_template('products.html', products=items)
 
-@app.route('/admin')
-def admin():
-    items = load_products()
-    return render_template('admin.html', products=items)
 
 @app.route('/update', methods=['POST'])
 def update_product():
@@ -96,3 +97,41 @@ def delete_product():
     data = [p for p in data if p["id"] != product_id]
     save_products(data)
     return redirect("/admin")
+@app.route('/admin')
+def admin():
+    if not session.get("admin"):
+        return redirect("/login")
+    items = load_products()
+    return render_template('admin.html', products=items)
+@app.route('/update', methods=['POST'])
+def update_product():
+    if not session.get("admin"):
+        return redirect("/login")
+    ...
+@app.route('/add', methods=['POST'])
+def add_product():
+    if not session.get("admin"):
+        return redirect("/login")
+    ...
+@app.route('/delete', methods=['POST'])
+def delete_product():
+    if not session.get("admin"):
+        return redirect("/login")
+    ...
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username == "admin" and password == "mewmoo123":
+            session["admin"] = True
+            return redirect("/admin")
+        else:
+            return "Invalid credentials. <a href='/login'>Try again</a>"
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("admin", None)
+    return redirect("/")
