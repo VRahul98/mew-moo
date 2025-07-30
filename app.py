@@ -7,7 +7,7 @@ app.secret_key = 'supersecretkey'  # Replace this with a more secure one in prod
 
 # Load products from JSON
 def load_products():
-        with open('data/products.json') as f:
+    with open('data/products.json') as f:
         return json.load(f)
 
 @app.route('/')
@@ -19,6 +19,10 @@ def products():
     items = load_products()
     return render_template('products.html', products=items)
 
+@app.route('/admin')
+def admin():
+    items = load_products()
+    return render_template('admin.html', products=items)
 
 @app.route('/update', methods=['POST'])
 def update_product():
@@ -59,14 +63,12 @@ def login():
 def logout():
     session.pop("admin", None)
     return redirect("/")
-
 @app.route('/admin')
 def admin():
     if not session.get("admin"):
         return redirect("/login")
     items = load_products()
     return render_template('admin.html', products=items)
-
 @app.route('/add', methods=['POST'])
 def add_product():
     if not session.get("admin"):
@@ -85,7 +87,6 @@ def add_product():
     data.append(new_product)
     save_products(data)
     return redirect("/admin")
-
 @app.route('/delete', methods=['POST'])
 def delete_product():
     if not session.get("admin"):
@@ -117,20 +118,3 @@ def delete_product():
     if not session.get("admin"):
         return redirect("/login")
     ...
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
-        if username == "admin" and password == "mewmoo123":
-            session["admin"] = True
-            return redirect("/admin")
-        else:
-            return "Invalid credentials. <a href='/login'>Try again</a>"
-    return render_template("login.html")
-
-@app.route("/logout")
-def logout():
-    session.pop("admin", None)
-    return redirect("/")
