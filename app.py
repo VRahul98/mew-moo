@@ -7,11 +7,7 @@ app.secret_key = 'supersecretkey'  # Replace this with a more secure one in prod
 
 # Load products from JSON
 def load_products():
-    def save_products(data):
-    with open('data/products.json', 'w') as f:
-        json.dump(data, f, indent=4)
-
-    with open('data/products.json') as f:
+        with open('data/products.json') as f:
         return json.load(f)
 
 @app.route('/')
