@@ -427,3 +427,53 @@ footer {
         width: 90%;
     }
 }
+.admin-title {
+    text-align: center;
+    margin-top: 30px;
+    color: #ff69b4;
+}
+
+.admin-section {
+    padding: 30px;
+    text-align: center;
+}
+
+.admin-table {
+    margin: auto;
+    width: 95%;
+    border-collapse: collapse;
+    background-color: #1e1e2f;
+    color: #f1f1f1;
+    box-shadow: 0 0 12px #0004;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px;
+    border: 1px solid #444;
+    text-align: center;
+}
+
+.admin-table input {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #292946;
+    color: #fff;
+    width: 80px;
+}
+
+.admin-table button {
+    background-color: #ff69b4;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.admin-table button:hover {
+    background-color: #ff1493;
+}

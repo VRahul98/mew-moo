@@ -1,40 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Admin - Mew & Moo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
 </head>
 <body>
-    <h1>Admin Panel</h1>
-    <nav>
-        <a href="/">Home</a> |
-        <a href="/products">Products</a> |
+
+    <h1 class="admin-title">🛠️ Admin Panel – Mew & Moo</h1>
+
+    <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/products">Products</a>
         <a href="/admin">Admin</a>
     </nav>
 
-    <table border="1">
-        <tr>
-            <th>Name</th><th>Price</th><th>Stock</th><th>Update</th>
-        </tr>
-        {% for p in products %}
-        <tr>
-            <form action="/update" method="POST">
-                <td>{{ p.name }}</td>
-                <td><input type="number" name="price" value="{{ p.price }}" step="0.01"></td>
-                <td><input type="number" name="stock" value="{{ p.stock }}"></td>
-                <td>
-                    <input type="hidden" name="id" value="{{ p.id }}">
-                    <button type="submit">Update</button>
-                </td>
-            </form>
-        </tr>
-        {% endfor %}
-    </table>
-    <!-- Floating Buttons -->
-<div class="floating-buttons">
-    <a href="/products" class="float-btn">🛍️ Order Now</a>
-    <a href="/#contact" class="float-btn">📞 Contact</a>
-</div>
+    <section class="admin-section">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price ($)</th>
+                    <th>Stock</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <form action="/update" method="POST">
+                        <td><img src="/static/images/{{ p.image }}" alt="{{ p.name }}" width="60"></td>
+                        <td>{{ p.name }}</td>
+                        <td>{{ p.category }}</td>
+                        <td><input type="number" name="price" value="{{ p.price }}" step="0.01" required></td>
+                        <td><input type="number" name="stock" value="{{ p.stock }}" required></td>
+                        <td>
+                            <input type="hidden" name="id" value="{{ p.id }}">
+                            <button type="submit">💾 Update</button>
+                        </td>
+                        <button type="submit" formaction="/delete" formmethod="POST" onclick="return confirm('Are you sure?')">🗑️ Delete</button>
+
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
 </body>
 </html>
+<section class="add-product">
+    <h2>➕ Add New Product</h2>
+    <form action="/add" method="POST" class="ask-question form">
+        <input type="text" name="name" placeholder="Product name" required>
+        <input type="text" name="category" placeholder="Category" required>
+        <input type="number" name="price" placeholder="Price" step="0.01" required>
+        <input type="number" name="stock" placeholder="Stock" required>
+        <input type="text" name="image" placeholder="Image filename (e.g. fish.jpg)" required>
+        <button type="submit">Add Product</button>
+    </form>
+</section>
