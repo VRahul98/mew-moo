@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Products - Mew & Moo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+    <h1>Our Products</h1>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/products">Products</a> |
+        <a href="/admin">Admin</a>
+    </nav>
+    <section class="categories">
+        <h2>Shop by Category 🛍️</h2>
+        <div class="category-cards">
+            <div class="card cat">
+                <img src="/static/images/cat.png" alt="cat">
+                <p>Cats</p>
+            </div>
+            <div class="card dog">
+                <img src="/static/images/dog.png" alt="dog">
+                <p>Dogs</p>
+            </div>
+            <div class="card fish">
+                <img src="/static/images/fish.png" alt="fish">
+                <p>Fish</p>
+            </div>
+        </div>
+    </section>
+
+    <ul>
+        {% for item in products %}
+        <li>
+            <strong>{{ item.name }}</strong> ({{ item.category }})<br>
+            Price: ${{ item.price }}<br>
+            In Stock: {{ item.stock }}<br>
+            <img src="/static/images/{{ item.image }}" width="100">
+        </li>
+        {% endfor %}
+    </ul>
+    <!-- Floating Buttons -->
+<div class="floating-buttons">
+    <a href="/products" class="float-btn">🛍️ Order Now</a>
+    <a href="/#contact" class="float-btn">📞 Contact</a>
+</div>
+</body>
+</html>

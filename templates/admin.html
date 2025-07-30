@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Mew & Moo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/products">Products</a> |
+        <a href="/admin">Admin</a>
+    </nav>
+
+    <table border="1">
+        <tr>
+            <th>Name</th><th>Price</th><th>Stock</th><th>Update</th>
+        </tr>
+        {% for p in products %}
+        <tr>
+            <form action="/update" method="POST">
+                <td>{{ p.name }}</td>
+                <td><input type="number" name="price" value="{{ p.price }}" step="0.01"></td>
+                <td><input type="number" name="stock" value="{{ p.stock }}"></td>
+                <td>
+                    <input type="hidden" name="id" value="{{ p.id }}">
+                    <button type="submit">Update</button>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+    <!-- Floating Buttons -->
+<div class="floating-buttons">
+    <a href="/products" class="float-btn">🛍️ Order Now</a>
+    <a href="/#contact" class="float-btn">📞 Contact</a>
+</div>
+</body>
+</html>

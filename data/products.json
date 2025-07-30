@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "name": "Goldfish",
+        "category": "Fish",
+        "price": 5.99,
+        "stock": 30,
+        "image": "goldfish.jpg"
+    },
+    {
+        "id": 2,
+        "name": "Cat Toy Mouse",
+        "category": "Cats",
+        "price": 2.99,
+        "stock": 50,
+        "image": "cat_toy.jpg"
+    },
+    {
+        "id": 3,
+        "name": "Dog Leash",
+        "category": "Dogs",
+        "price": 7.99,
+        "stock": 20,
+        "image": "dog_leash.jpg"
+    }
+]

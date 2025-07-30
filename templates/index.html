@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mew & Moo Petstore</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+    <!-- Splash Screen -->
+<div id="splash-screen">
+  <div class="splash-logo">🐾 Mew & Moo 🐾</div>
+  <div class="loading-bar"></div>
+</div>
+
+    <header class="hero-banner">
+    <div class="banner-overlay">
+        <img src="/static/images/logo.png" class="logo" alt="Mew & Moo Logo">
+        <h1>Mew & Moo  🐾</h1>
+        <p class="tagline">Discover joy with our adorable pets and premium pet products</p>
+    </div>
+</header>
+
+    <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/products">Shop</a>
+        <a href="/admin">Admin</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <section class="pet-gallery">
+    <h2>🐾 Meet Our Lovely Pets</h2>
+    <div class="gallery">
+        <img src="/static/images/gallery-dog.jpg" alt="Dog">
+        <img src="/static/images/gallery-bird.jpg" alt="Bird">
+        <img src="/static/images/gallery-fish.jpg" alt="Fish">
+        <img src="/static/images/gallery-aquarium.jpg" alt="Aquarium">
+    </div>
+</section>
+
+<section class="media-showcase">
+    <h2 class="media-title">🎥 Our Pets in Action!</h2>
+    <div class="gif-row">
+    
+    <!-- Fun GIFs -->
+        <img src="/static/images/lovely pets.gif" >
+        <img src="/static/images/betta-fish.gif" >
+        <img src="/static/images/fish-swim.gif" >
+        <img src="/static/images/Puppys.gif" >
+        <img src="/static/images/Cute dogs.gif" >
+    </div>
+   </section>
+
+    <section class="blogs">
+    <h2>📝 Pet Care Tips & Articles</h2>
+    <div class="blog-cards">
+        <div class="blog">
+            <img src="/static/images/blog-dog.jpg" alt="Dog Care">
+            <h3>Caring for Your Dog</h3>
+            <p>Learn daily grooming, walking habits, and diet essentials for your furry friend.</p>
+        </div>
+        <div class="blog">
+            <img src="/static/images/blog-bird.jpg" alt="Bird Care">
+            <h3>Keeping Birds Happy</h3>
+            <p>Tips on cage setup, social needs, and food to keep your birds chirping!</p>
+        </div>
+        <div class="blog">
+            <img src="/static/images/blog-aquarium.jpg" alt="Aquarium Setup">
+            <h3>Best Aquarium Setups</h3>
+            <p>Explore tank types, fish compatibility, and aesthetic ideas for your space.</p>
+        </div>
+    </div>
+</section>
+<section class="reviews">
+    <h2>❤️ What Our Customers Say</h2>
+    <div class="review-box">
+        <p>"Amazing service and super cute pets! My cat is so healthy!" – Kavya .</p>
+        <p>"Great aquarium selection and expert advice. Highly recommend!" – Rahul .</p>
+    </div>
+</section>
+
+<section class="ask-question">
+    <h2>❓ Ask a Question</h2>
+    <form method="POST" action="/ask">
+        <input type="text" name="name" placeholder="Your name" required>
+        <input type="email" name="email" placeholder="Your email" required>
+        <textarea name="question" placeholder="Type your question here..." required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+</section>
+
+    <section class="cta">
+        <h2>🐶 Ready to treat your pet?</h2>
+        <a href="/products" class="cta-button">Shop Now</a>
+    </section>
+
+    <footer id="contact">
+        <h3>Contact Us</h3>
+        <p>Email: support@mewandmoo.com | Phone: +91-12345-67890</p>
+        <p>Follow us on Instagram & Facebook for cute updates!</p>
+    </footer>
+<!-- Floating Paws Animation Container -->
+<div class="paw-animation">
+  <img src="/static/images/paw.svg" class="paw" style="--i:0;" />
+  <img src="/static/images/paw.svg" class="paw" style="--i:1;" />
+  <img src="/static/images/paw.svg" class="paw" style="--i:2;" />
+  <img src="/static/images/paw.svg" class="paw" style="--i:3;" />
+</div>
+</body>
+</html>
