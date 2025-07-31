@@ -1,64 +1,124 @@
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin - Mew & Moo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="UTF-8" />
+  <title>Admin - Mew & Moo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
-    <h1 class="admin-title">🛠️ Admin Panel – Mew & Moo</h1>
+  <h1 class="admin-title">🐾 Mew & Moo Admin Dashboard</h1>
+  <p class="admin-tagline">Manage products, prices, and stock with ease!</p>
 
-    <nav class="main-nav">
-        <a href="/">Home</a>
-        <a href="/products">Products</a>
-        <a href="/admin">Admin</a>
-    </nav>
+  <nav class="main-nav">
+    <a href="/">Home</a>
+    <a href="/products">Products</a>
+    <a href="/admin">Admin</a>
+    <a href="/logout">Logout</a>
+  </nav>
 
-    <section class="admin-section">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th>Price ($)</th>
-                    <th>Stock</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for p in products %}
-                <tr>
-                    <form action="/update" method="POST">
-                        <td><img src="/static/images/{{ p.image }}" alt="{{ p.name }}" width="60"></td>
-                        <td>{{ p.name }}</td>
-                        <td>{{ p.category }}</td>
-                        <td><input type="number" name="price" value="{{ p.price }}" step="0.01" required></td>
-                        <td><input type="number" name="stock" value="{{ p.stock }}" required></td>
-                        <td>
-                            <input type="hidden" name="id" value="{{ p.id }}">
-                            <button type="submit">💾 Update</button>
-                        </td>
-                        <button type="submit" formaction="/delete" formmethod="POST" onclick="return confirm('Are you sure?')">🗑️ Delete</button>
+  <section class="dashboard-cards">
+    <div class="card-summary">
+      <h3>Total Products</h3>
+      <p>{{ products|length }}</p>
+    </div>
+    <div class="card-summary">
+      <h3>Out of Stock</h3>
+      <p>{{ products | selectattr("stock", "equalto", 0) | list | length }}</p>
+    </div>
+    <div class="card-summary">
+      <h3>Total Inventory Value ($)</h3>
+      <p>{{ products | sum(attribute='price') }}</p>
+    </div>
+  </section>
 
-                    </form>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </section>
+  <section class="filter-section">
+    <label for="categoryFilter">Filter by Category:</label>
+    <select id="categoryFilter">
+      <option value="All">All</option>
+      <option value="Dogs">Dogs</option>
+      <option value="Fish">Fish</option>
+      <option value="Birds">Birds</option>
+    </select>
+  </section>
+
+  <section class="admin-section">
+    <h2>📋 Product Inventory</h2>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th class="category-cell">Category</th>
+          <th>Price ($)</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr class="product-row" data-category="{{ p.category }}">
+          <td><img src="/static/images/{{ p.image }}" alt="{{ p.name }}" width="60"></td>
+          <td>{{ p.name }}</td>
+          <td class="category-cell">{{ p.category }}</td>
+          <form action="/update" method="POST">
+            <td><input type="number" name="price" value="{{ p.price }}" step="0.01" required></td>
+            <td><input type="number" name="stock" value="{{ p.stock }}" required></td>
+            <td>
+              {% if p.stock == 0 %}
+                <span style="color: red;">Out of Stock</span>
+              {% else %}
+                <span style="color: green;">In Stock</span>
+              {% endif %}
+            </td>
+            <td>
+              <input type="hidden" name="id" value="{{ p.id }}">
+              <button type="submit">💾 Update</button>
+          </form>
+              <form action="/delete" method="POST" style="display:inline;">
+                <input type="hidden" name="id" value="{{ p.id }}">
+                <button type="submit" onclick="return confirm('Are you sure?')">🗑️ Delete</button>
+              </form>
+            </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="add-product">
+    <h2>➕ Add New Product</h2>
+    <form action="/add" method="POST" class="add-form">
+      <input type="text" name="name" placeholder="Product name" required>
+      <input type="text" name="category" placeholder="Category" required>
+      <input type="number" name="price" placeholder="Price" step="0.01" required>
+      <input type="number" name="stock" placeholder="Stock" required>
+      <input type="text" name="image" placeholder="Image filename (e.g. dog.jpg)" required>
+      <button type="submit">Add Product</button>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById('categoryFilter').addEventListener('change', function () {
+      const selected = this.value.toLowerCase();
+      document.querySelectorAll('.product-row').forEach(row => {
+        const category = row.getAttribute('data-category').toLowerCase();
+        row.style.display = selected === 'all' || category === selected ? '' : 'none';
+      });
+    });
+  </script>
 
 </body>
 </html>
-<section class="add-product">
-    <h2>➕ Add New Product</h2>
-    <form action="/add" method="POST" class="ask-question form">
-        <input type="text" name="name" placeholder="Product name" required>
-        <input type="text" name="category" placeholder="Category" required>
-        <input type="number" name="price" placeholder="Price" step="0.01" required>
-        <input type="number" name="stock" placeholder="Stock" required>
-        <input type="text" name="image" placeholder="Image filename (e.g. fish.jpg)" required>
-        <button type="submit">Add Product</button>
-    </form>
-</section>
