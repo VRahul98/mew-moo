@@ -97,7 +97,10 @@
   <div class="product-grid">
     {% for p in products %}
     <div class="product-card">
-     <img src="{{ url_for('static', filename='images/' + p.image) }}" alt="{{ p.name }}">
+     <img src="{{ url_for('static', filename='images/' + p.image) }}"
+     alt="{{ p.name }}"
+     style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;">
+
       <h3>{{ p.name }}</h3>
       <p>{{ p.category }}</p>
       <p class="price">₹{{ p.price }}</p>
@@ -115,6 +118,13 @@
     </div>
     {% endfor %}
   </div>
+
+<form method="POST" action="{{ url_for('add_to_cart') }}">
+  <input type="hidden" name="id" value="{{ p.id }}">
+  <label>Qty:</label>
+  <input type="number" name="quantity" value="1" min="1" max="{{ p.stock }}" style="width: 50px;">
+  <button type="submit">🛒 Add to Cart</button>
+</form>
 
 </body>
 </html>
