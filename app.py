@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from flask import flash
 import json
 import os
 
@@ -72,6 +73,11 @@ def update_product():
     save_products(data)
     return redirect("/admin")
 
+def save_products(data):
+    with open('data/products.json', 'w') as f:
+        json.dump(data, f, indent=4)
+
+
 # Add Product (Protected)
 @app.route('/add', methods=['POST'])
 def add_product():
@@ -108,3 +114,20 @@ def delete_product():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
+@app.route("/add_to_cart", methods=["POST"])
+def add_to_cart():
+    product_id = int(request.form["id"])
+    products = load_products()
+    selected = next((p for p in products if p["id"] == product_id), None)
+
+    if selected:
+        cart = session.get("cart", [])
+        cart.append(selected)
+        session["cart"] = cart
+    return redirect("/products")
+@app.route("/cart")
+def cart():
+    cart = session.get("cart", [])
+    total = sum([p["price"] for p in cart])
+    return render_template("cart.html", cart=cart, total=total)

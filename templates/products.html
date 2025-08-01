@@ -5,6 +5,8 @@
   <title>Our Products | Mew & Moo</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <a href="/cart">🛒 Cart</a>
+
   <style>
     body {
       background: linear-gradient(to bottom right, #1e1e2f, #2b2b47);
@@ -95,11 +97,21 @@
   <div class="product-grid">
     {% for p in products %}
     <div class="product-card">
-      <img src="/static/images/{{ p.image }}" alt="{{ p.name }}">
+     <img src="{{ url_for('static', filename='images/' + p.image) }}" alt="{{ p.name }}">
       <h3>{{ p.name }}</h3>
       <p>{{ p.category }}</p>
       <p class="price">₹{{ p.price }}</p>
-      <p>{{ 'In Stock' if p.stock > 0 else 'Out of Stock' }}</p>
+<p>{{ 'In Stock' if p.stock > 0 else 'Out of Stock' }}</p>
+
+{% if p.stock > 0 %}
+<form method="POST" action="{{ url_for('add_to_cart') }}">
+  <input type="hidden" name="id" value="{{ p.id }}">
+  <button type="submit">🛒 Add to Cart</button>
+</form>
+{% else %}
+<p style="color: red;">Out of Stock</p>
+{% endif %}
+
     </div>
     {% endfor %}
   </div>

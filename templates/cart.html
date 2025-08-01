@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Your Cart | Mew & Moo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <h1 style="text-align:center;">🛒 Your Cart</h1>
+
+  {% if cart %}
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Image</th><th>Name</th><th>Price (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cart %}
+      <tr>
+        <td><img src="{{ url_for('static', filename='images/' + item.image) }}" height="60"></td>
+        <td>{{ item.name }}</td>
+        <td>₹{{ item.price }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h2 style="text-align:center;">Total: ₹{{ total }}</h2>
+  <div style="text-align:center;">
+    <button>Proceed to Checkout 🧾</button>
+  </div>
+  {% else %}
+  <p style="text-align:center;">Your cart is empty.</p>
+  {% endif %}
+
+  <div style="text-align:center; margin-top:20px;">
+    <a href="/">← Continue Shopping</a>
+  </div>
+</body>
+</html>
