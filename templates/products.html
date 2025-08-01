@@ -1,49 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Products - Mew & Moo</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+  <meta charset="UTF-8" />
+  <title>Our Products | Mew & Moo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #1e1e2f, #2b2b47);
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffd700;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 25px;
+      padding: 20px;
+    }
+
+    .product-card {
+      background-color: #292946;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 10px #0006;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .product-card:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #ffd70055;
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-card h3 {
+      margin: 10px 0 5px;
+      font-size: 1.2rem;
+      color: #ffdf00;
+    }
+
+    .product-card p {
+      margin: 5px;
+      color: #ccc;
+    }
+
+    .product-card .price {
+      color: #00ff99;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .nav-links {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .nav-links a {
+      color: #ffd700;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <h1>Our Products</h1>
-    <nav>
-        <a href="/">Home</a> |
-        <a href="/products">Products</a> |
-        <a href="/admin">Admin</a>
-    </nav>
-    <section class="categories">
-        <h2>Shop by Category 🛍️</h2>
-        <div class="category-cards">
-            <div class="card cat">
-                <img src="/static/images/cat.png" alt="cat">
-                <p>Cats</p>
-            </div>
-            <div class="card dog">
-                <img src="/static/images/dog.png" alt="dog">
-                <p>Dogs</p>
-            </div>
-            <div class="card fish">
-                <img src="/static/images/fish.png" alt="fish">
-                <p>Fish</p>
-            </div>
-        </div>
-    </section>
 
-    <ul>
-        {% for item in products %}
-        <li>
-            <strong>{{ item.name }}</strong> ({{ item.category }})<br>
-            Price: ${{ item.price }}<br>
-            In Stock: {{ item.stock }}<br>
-            <img src="/static/images/{{ item.image }}" width="100">
-        </li>
-        {% endfor %}
-    </ul>
-    <!-- Floating Buttons -->
-<div class="floating-buttons">
-    <a href="/products" class="float-btn">🛍️ Order Now</a>
-    <a href="/#contact" class="float-btn">📞 Contact</a>
-</div>
+  <div class="nav-links">
+    <a href="/">🏠 Home</a>
+    <a href="/products">🛍 Products</a>
+    <a href="/admin">🔐 Admin</a>
+  </div>
+
+  <h1>Explore Our Pet Products</h1>
+
+  <div class="product-grid">
+    {% for p in products %}
+    <div class="product-card">
+      <img src="/static/images/{{ p.image }}" alt="{{ p.name }}">
+      <h3>{{ p.name }}</h3>
+      <p>{{ p.category }}</p>
+      <p class="price">₹{{ p.price }}</p>
+      <p>{{ 'In Stock' if p.stock > 0 else 'Out of Stock' }}</p>
+    </div>
+    {% endfor %}
+  </div>
+
 </body>
 </html>
