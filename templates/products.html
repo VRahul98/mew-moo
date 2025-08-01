@@ -5,7 +5,6 @@
   <title>Our Products | Mew & Moo</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <a href="/cart">🛒 Cart</a>
 
   <style>
     body {
@@ -37,6 +36,7 @@
       box-shadow: 0 0 10px #0006;
       text-align: center;
       transition: transform 0.3s, box-shadow 0.3s;
+      padding-bottom: 15px;
     }
 
     .product-card:hover {
@@ -82,9 +82,29 @@
     .nav-links a:hover {
       text-decoration: underline;
     }
+
+    .cart-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ffd700;
+      color: #000;
+      padding: 10px 15px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 0 10px #0005;
+      transition: transform 0.3s;
+    }
+
+    .cart-button:hover {
+      transform: scale(1.1);
+    }
   </style>
 </head>
 <body>
+
+  <a href="/cart" class="cart-button">🛒 Cart</a>
 
   <div class="nav-links">
     <a href="/">🏠 Home</a>
@@ -97,34 +117,26 @@
   <div class="product-grid">
     {% for p in products %}
     <div class="product-card">
-     <img src="{{ url_for('static', filename='images/' + p.image) }}"
-     alt="{{ p.name }}"
-     style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;">
+      <img src="{{ url_for('static', filename='images/' + p.image) }}" alt="{{ p.name }}">
 
       <h3>{{ p.name }}</h3>
       <p>{{ p.category }}</p>
       <p class="price">₹{{ p.price }}</p>
-<p>{{ 'In Stock' if p.stock > 0 else 'Out of Stock' }}</p>
+      <p>{{ 'In Stock' if p.stock > 0 else 'Out of Stock' }}</p>
 
-{% if p.stock > 0 %}
-<form method="POST" action="{{ url_for('add_to_cart') }}">
-  <input type="hidden" name="id" value="{{ p.id }}">
-  <button type="submit">🛒 Add to Cart</button>
-</form>
-{% else %}
-<p style="color: red;">Out of Stock</p>
-{% endif %}
-
+      {% if p.stock > 0 %}
+      <form method="POST" action="{{ url_for('add_to_cart') }}">
+        <input type="hidden" name="id" value="{{ p.id }}">
+        <label for="quantity">Qty:</label>
+        <input type="number" name="quantity" value="1" min="1" max="{{ p.stock }}" style="width: 50px;">
+        <button type="submit">🛒 Add to Cart</button>
+      </form>
+      {% else %}
+      <p style="color: red;">Out of Stock</p>
+      {% endif %}
     </div>
     {% endfor %}
   </div>
-
-<form method="POST" action="{{ url_for('add_to_cart') }}">
-  <input type="hidden" name="id" value="{{ p.id }}">
-  <label>Qty:</label>
-  <input type="number" name="quantity" value="1" min="1" max="{{ p.stock }}" style="width: 50px;">
-  <button type="submit">🛒 Add to Cart</button>
-</form>
 
 </body>
 </html>

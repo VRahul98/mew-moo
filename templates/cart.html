@@ -1,39 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Your Cart | Mew & Moo</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #1e1e2f;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #292946;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #ffd700;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: #00ff99;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #00cc77;
+    }
+    form {
+      text-align: center;
+      margin-top: 10px;
+    }
+    a {
+      color: #ffd700;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h1 style="text-align:center;">🛒 Your Cart</h1>
+
+  <h1>🛒 Your Cart</h1>
 
   {% if cart %}
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Image</th><th>Name</th><th>Price (₹)</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in cart %}
-      <tr>
-        <td><img src="{{ url_for('static', filename='images/' + item.image) }}" height="60"></td>
-        <td>{{ item.name }}</td>
-        <td>₹{{ item.price }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <h2 style="text-align:center;">Total: ₹{{ total }}</h2>
-  <div style="text-align:center;">
-    <button>Proceed to Checkout 🧾</button>
-  </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Qty</th>
+          <th>Price (₹)</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart %}
+        <tr>
+          <td><img src="{{ url_for('static', filename='images/' + item.image) }}" height="60"></td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>₹{{ item.price }}</td>
+          <td>₹{{ item.price * item.quantity }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2>Total Items: {{ total_items }} | Total: ₹{{ total }}</h2>
+
+    <form method="POST" action="{{ url_for('checkout') }}">
+      <input type="text" name="name" placeholder="Your Name" required><br>
+      <input type="email" name="email" placeholder="Your Email" required><br>
+      <input type="text" name="phone" placeholder="Phone Number" required><br>
+      <button type="submit">✅ Confirm Order</button>
+    </form>
   {% else %}
-  <p style="text-align:center;">Your cart is empty.</p>
+    <p style="text-align:center;">Your cart is empty.</p>
   {% endif %}
 
   <div style="text-align:center; margin-top:20px;">
     <a href="/">← Continue Shopping</a>
   </div>
+
 </body>
 </html>
