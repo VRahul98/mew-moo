@@ -1,14 +1,13 @@
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import json
 import os
 import smtplib
 from email.message import EmailMessage
 import requests
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'  # Replace this in production
+app.secret_key = 'supersecretkey'
 
 SHOP_PHONE = "YOUR_SHOP_PHONE_NUMBER"
 
@@ -31,38 +30,32 @@ def save_order(order):
     if not os.path.exists('data/orders.json'):
         with open('data/orders.json', 'w') as f:
             json.dump([], f)
-
     with open('data/orders.json') as f:
         orders = json.load(f)
-
     orders.append(order)
-
     with open('data/orders.json', 'w') as f:
         json.dump(orders, f, indent=4)
 
-# Email & SMS
 def send_email(to_email, name, cart, total):
     email = EmailMessage()
     email["Subject"] = "Your Mew & Moo Order Confirmation"
-    email["From"] = "mewmoopetstore@gmail.com"
+    email["From"] = os.environ.get("EMAIL_USER")
     email["To"] = to_email
-
     body = f"Hello {name},\n\nThanks for your order from Mew & Moo!\n\n"
     for item in cart:
         body += f"- {item['name']} x{item['quantity']} ₹{item['price']}\n"
     body += f"\nTotal: ₹{total}\n\nWe’ll get your items to you soon! 🐾"
-
     email.set_content(body)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login("mewmoopetstore@gmail.com", "Mew&moo2025")
+        smtp.login(os.environ.get("EMAIL_USER"), os.environ.get("EMAIL_PASS"))
         smtp.send_message(email)
 
 def send_sms(phone, name, total):
     message = f"Hi {name}, your Mew & Moo order of ₹{total} is confirmed! 🐾"
     url = "https://www.fast2sms.com/dev/bulkV2"
     headers = {
-        "authorization": "YOUR_FAST2SMS_API_KEY",
+        "authorization": os.environ.get("FAST2SMS_API_KEY"),
     }
     payload = {
         "route": "v3",
@@ -73,7 +66,6 @@ def send_sms(phone, name, total):
     }
     requests.post(url, headers=headers, data=payload)
 
-# Routes
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -94,10 +86,8 @@ def cart():
 def add_to_cart():
     product_id = int(request.form["id"])
     quantity = int(request.form.get("quantity", 1))
-
     products = load_products()
     selected = next((p for p in products if p["id"] == product_id), None)
-
     if selected:
         cart = session.get("cart", [])
         existing = next((item for item in cart if item["id"] == selected["id"]), None)
@@ -108,7 +98,6 @@ def add_to_cart():
             selected_copy["quantity"] = quantity
             cart.append(selected_copy)
         session["cart"] = cart
-
     return redirect("/products")
 
 @app.route("/checkout", methods=["POST"])
@@ -120,7 +109,6 @@ def checkout():
     customer_email = request.form.get("email")
     customer_name = request.form.get("name")
     phone = request.form.get("phone")
-
     total = sum([item["price"] * item["quantity"] for item in cart])
     order = {
         "customer_name": customer_name,
@@ -133,8 +121,7 @@ def checkout():
     save_order(order)
     send_email(customer_email, customer_name, cart, total)
     send_sms(phone, customer_name, total)
-    send_sms(SHOP_PHONE, f"🛒 New Order from {customer_name}", total)
-
+    send_sms(SHOP_PHONE, customer_name, total)
     session.pop("cart", None)
     return redirect("/thankyou")
 
@@ -161,17 +148,19 @@ def logout():
 
 @app.route("/admin")
 def admin():
-    if not session.get("admin"):
-        return redirect("/login")
-    items = load_products()
-    orders = load_orders()
-    return render_template("admin.html", products=items, orders=orders)
+    try:
+        if not session.get("admin"):
+            return redirect("/login")
+        items = load_products()
+        orders = load_orders()
+        return render_template("admin.html", products=items, orders=orders)
+    except Exception as e:
+        return f"Error in admin route: {e}"
 
 @app.route('/add', methods=['POST'])
 def add_product():
     if not session.get("admin"):
         return redirect("/login")
-
     data = load_products()
     new_id = max([p["id"] for p in data], default=0) + 1
     new_product = {
@@ -190,18 +179,15 @@ def add_product():
 def update_product():
     if not session.get("admin"):
         return redirect("/login")
-
     data = load_products()
     product_id = int(request.form['id'])
     new_price = float(request.form['price'])
     new_stock = int(request.form['stock'])
-
     for p in data:
         if p['id'] == product_id:
             p['price'] = new_price
             p['stock'] = new_stock
             break
-
     save_products(data)
     return redirect("/admin")
 
@@ -209,7 +195,6 @@ def update_product():
 def delete_product():
     if not session.get("admin"):
         return redirect("/login")
-
     product_id = int(request.form["id"])
     data = load_products()
     data = [p for p in data if p["id"] != product_id]
@@ -219,16 +204,3 @@ def delete_product():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
-@app.route("/admin")
-def admin():
-    try:
-        if not session.get("admin"):
-            return redirect("/login")
-        items = load_products()
-        orders = load_orders()
-        return render_template("admin.html", products=items, orders=orders)
-    except Exception as e:
-        return f"Error in admin route: {e}"
