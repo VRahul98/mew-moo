@@ -28,6 +28,26 @@
     <a href="/logout">Logout</a>
   </nav>
 
+  <h2>🧾 Orders</h2>
+  <table>
+    <tr><th>Customer</th><th>Email</th><th>Phone</th><th>Items</th><th>Total (₹)</th></tr>
+    {% for o in orders %}
+    <tr>
+      <td>{{ o.customer_name }}</td>
+      <td>{{ o.email }}</td>
+      <td>{{ o.phone }}</td>
+      <td>
+        <ul>
+        {% for i in o.items %}
+          <li>{{ i.name }} × {{ i.quantity }} = ₹{{ i.quantity * i.price }}</li>
+        {% endfor %}
+        </ul>
+      </td>
+      <td>₹{{ o.total }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
   <section class="dashboard-cards">
     <div class="card-summary">
       <h3>Total Products</h3>
@@ -38,8 +58,8 @@
       <p>{{ products | selectattr("stock", "equalto", 0) | list | length }}</p>
     </div>
     <div class="card-summary">
-      <h3>Total Inventory Value ($)</h3>
-      <p>{{ products | sum(attribute='price') }}</p>
+      <h3>Total Inventory Value (₹)</h3>
+      <p>₹{{ products | sum(attribute='price') }}</p>
     </div>
   </section>
 
@@ -73,25 +93,29 @@
           <td><img src="/static/images/{{ p.image }}" alt="{{ p.name }}" width="60"></td>
           <td>{{ p.name }}</td>
           <td class="category-cell">{{ p.category }}</td>
-          <form action="/update" method="POST">
-            <td><input type="number" name="price" value="{{ p.price }}" step="0.01" required></td>
-            <td><input type="number" name="stock" value="{{ p.stock }}" required></td>
-            <td>
+          
+          <!-- Update form -->
+          <td colspan="3">
+            <form action="/update" method="POST" style="display: inline-flex; gap: 8px; align-items: center;">
+              <input type="hidden" name="id" value="{{ p.id }}">
+              <input type="number" name="price" value="{{ p.price }}" step="0.01" required>
+              <input type="number" name="stock" value="{{ p.stock }}" required>
               {% if p.stock == 0 %}
                 <span style="color: red;">Out of Stock</span>
               {% else %}
                 <span style="color: green;">In Stock</span>
               {% endif %}
-            </td>
-            <td>
-              <input type="hidden" name="id" value="{{ p.id }}">
               <button type="submit">💾 Update</button>
-          </form>
-              <form action="/delete" method="POST" style="display:inline;">
-                <input type="hidden" name="id" value="{{ p.id }}">
-                <button type="submit" onclick="return confirm('Are you sure?')">🗑️ Delete</button>
-              </form>
-            </td>
+            </form>
+          </td>
+
+          <!-- Delete form -->
+          <td>
+            <form action="/delete" method="POST" style="display:inline;">
+              <input type="hidden" name="id" value="{{ p.id }}">
+              <button type="submit" onclick="return confirm('Are you sure?')">🗑️ Delete</button>
+            </form>
+          </td>
         </tr>
         {% endfor %}
       </tbody>

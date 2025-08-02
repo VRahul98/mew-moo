@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import json
 import os
@@ -36,11 +35,13 @@ def save_order(order):
     with open('data/orders.json', 'w') as f:
         json.dump(orders, f, indent=4)
 
+# Email & SMS
 def send_email(to_email, name, cart, total):
     email = EmailMessage()
     email["Subject"] = "Your Mew & Moo Order Confirmation"
     email["From"] = os.environ.get("EMAIL_USER")
     email["To"] = to_email
+
     body = f"Hello {name},\n\nThanks for your order from Mew & Moo!\n\n"
     for item in cart:
         body += f"- {item['name']} x{item['quantity']} ₹{item['price']}\n"
@@ -66,6 +67,7 @@ def send_sms(phone, name, total):
     }
     requests.post(url, headers=headers, data=payload)
 
+# Routes
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -110,6 +112,15 @@ def checkout():
     customer_name = request.form.get("name")
     phone = request.form.get("phone")
     total = sum([item["price"] * item["quantity"] for item in cart])
+
+    # 🛒 Deduct stock
+    products = load_products()
+    for item in cart:
+        for product in products:
+            if product["id"] == item["id"]:
+                product["stock"] = max(0, product["stock"] - item["quantity"])
+    save_products(products)
+
     order = {
         "customer_name": customer_name,
         "email": customer_email,
