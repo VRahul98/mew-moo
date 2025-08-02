@@ -94,9 +94,26 @@
         <a href="/products" class="cta-button">Shop Now</a>
     </section>
 
-    <footer id="contact">
+    
+<section class="book-service">
+    <h2>🐾 Book a Pet Service</h2>
+    <form method="POST" action="/book_service" class="book-form">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <input type="text" name="phone" placeholder="Your Phone" required>
+        <select name="service" required>
+            <option value="">-- Select a Service --</option>
+            <option value="Dog Grooming">Dog Grooming</option>
+            <option value="Vaccination">Vaccination</option>
+            <option value="Aquarium Setup">Aquarium Setup & Maintenance</option>
+        </select>
+        <button type="submit">Book Now</button>
+    </form>
+</section>
+
+<footer id="contact">
         <h3>Contact Us</h3>
-        <p>Email: support@mewandmoo.com | Phone: +91-12345-67890</p>
+        <p>📧 Email: <a href="mailto:mewmoopetstore@gmail.com">mewmoopetstore@gmail.com</a> | ☎️ Phone: <a href="tel:+916305003539">+91 6305003539</a> | 📸 Instagram: <a href="https://instagram.com/mew_moo_petstore" target="_blank">@mew_moo_petstore</a></p>
         <p>Follow us on Instagram & Facebook for cute updates!</p>
     </footer>
 <!-- Floating Paws Animation Container -->
