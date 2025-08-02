@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import json
 import os
@@ -8,59 +9,61 @@ import requests
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
-# Ensure 'data' directory exists
-os.makedirs('data', exist_ok=True)
+SHOP_PHONE = "YOUR_SHOP_PHONE_NUMBER"
 
-SHOP_PHONE = os.environ.get("SHOP_PHONE", "1234567890")
-
-# ---------- Load/save helpers ----------
-def load_products():
-    if not os.path.exists('data/products.json'):
-        with open('data/products.json', 'w') as f:
-            json.dump([], f)
-    with open('data/products.json') as f:
+# Utility: Load/Save JSON
+def load_json(filepath):
+    if not os.path.exists(filepath):
+        return []
+    with open(filepath) as f:
         return json.load(f)
 
-def save_products(data):
-    with open('data/products.json', 'w') as f:
+def save_json(filepath, data):
+    with open(filepath, 'w') as f:
         json.dump(data, f, indent=4)
 
+# Data helpers
+def load_products():
+    return load_json('data/products.json')
+
+def save_products(data):
+    save_json('data/products.json', data)
+
 def load_orders():
-    if not os.path.exists('data/orders.json'):
-        with open('data/orders.json', 'w') as f:
-            json.dump([], f)
-    with open('data/orders.json') as f:
-        return json.load(f)
+    return load_json('data/orders.json')
 
 def save_order(order):
     orders = load_orders()
     orders.append(order)
-    with open('data/orders.json', 'w') as f:
-        json.dump(orders, f, indent=4)
+    save_json('data/orders.json', orders)
 
-# ---------- Email & SMS ----------
+def load_bookings():
+    return load_json('data/bookings.json')
+
+def save_booking(booking):
+    bookings = load_bookings()
+    bookings.append(booking)
+    save_json('data/bookings.json', bookings)
+
+# Email & SMS
 def send_email(to_email, name, cart, total):
     email = EmailMessage()
     email["Subject"] = "Your Mew & Moo Order Confirmation"
     email["From"] = os.environ.get("EMAIL_USER")
     email["To"] = to_email
-
-    body = f"Hello {name},\n\nThanks for your order from Mew & Moo!\n\n"
+    body = f"Hello {{name}},\n\nThanks for your order from Mew & Moo!\n\n"
     for item in cart:
-        body += f"- {item['name']} x{item['quantity']} ₹{item['price']}\n"
-    body += f"\nTotal: ₹{total}\n\nWe’ll get your items to you soon! 🐾"
+        body += f"- {{item['name']}} x{{item['quantity']}} ₹{{item['price']}}\n"
+    body += f"\nTotal: ₹{{total}}\n\nWe’ll get your items to you soon! 🐾"
     email.set_content(body)
-
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(os.environ.get("EMAIL_USER"), os.environ.get("EMAIL_PASS"))
         smtp.send_message(email)
 
 def send_sms(phone, name, total):
-    message = f"Hi {name}, your Mew & Moo order of ₹{total} is confirmed! 🐾"
+    message = f"Hi {{name}}, your Mew & Moo order of ₹{{total}} is confirmed! 🐾"
     url = "https://www.fast2sms.com/dev/bulkV2"
-    headers = {
-        "authorization": os.environ.get("FAST2SMS_API_KEY"),
-    }
+    headers = { "authorization": os.environ.get("FAST2SMS_API_KEY") }
     payload = {
         "route": "v3",
         "sender_id": "TXTIND",
@@ -70,7 +73,8 @@ def send_sms(phone, name, total):
     }
     requests.post(url, headers=headers, data=payload)
 
-# ---------- Routes ----------
+# Route definitions continued...
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -93,7 +97,7 @@ def add_to_cart():
     quantity = int(request.form.get("quantity", 1))
     products = load_products()
     selected = next((p for p in products if p["id"] == product_id), None)
-    if selected:
+    if selected and selected["stock"] > 0:
         cart = session.get("cart", [])
         existing = next((item for item in cart if item["id"] == selected["id"]), None)
         if existing:
@@ -110,20 +114,16 @@ def checkout():
     cart = session.get("cart", [])
     if not cart:
         return redirect("/cart")
-
     customer_email = request.form.get("email")
     customer_name = request.form.get("name")
     phone = request.form.get("phone")
     total = sum([item["price"] * item["quantity"] for item in cart])
-
-    # 🛒 Deduct stock
     products = load_products()
     for item in cart:
         for product in products:
             if product["id"] == item["id"]:
                 product["stock"] = max(0, product["stock"] - item["quantity"])
     save_products(products)
-
     order = {
         "customer_name": customer_name,
         "email": customer_email,
@@ -131,7 +131,6 @@ def checkout():
         "items": cart,
         "total": total
     }
-
     save_order(order)
     send_email(customer_email, customer_name, cart, total)
     send_sms(phone, customer_name, total)
@@ -146,13 +145,10 @@ def thankyou():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        if username == "admin" and password == "mewmoo123":
+        if request.form["username"] == "admin" and request.form["password"] == "mewmoo123":
             session["admin"] = True
             return redirect("/admin")
-        else:
-            return "Invalid credentials. <a href='/login'>Try again</a>"
+        return "Invalid credentials. <a href='/login'>Try again</a>"
     return render_template("login.html")
 
 @app.route("/logout")
@@ -164,9 +160,7 @@ def logout():
 def admin():
     if not session.get("admin"):
         return redirect("/login")
-    items = load_products()
-    orders = load_orders()
-    return render_template("admin.html", products=items, orders=orders)
+    return render_template("admin.html", products=load_products(), orders=load_orders(), bookings=load_bookings())
 
 @app.route('/add', methods=['POST'])
 def add_product():
@@ -174,15 +168,14 @@ def add_product():
         return redirect("/login")
     data = load_products()
     new_id = max([p["id"] for p in data], default=0) + 1
-    new_product = {
+    data.append({
         "id": new_id,
         "name": request.form["name"],
         "category": request.form["category"],
         "price": float(request.form["price"]),
         "stock": int(request.form["stock"]),
         "image": request.form["image"]
-    }
-    data.append(new_product)
+    })
     save_products(data)
     return redirect("/admin")
 
@@ -191,14 +184,10 @@ def update_product():
     if not session.get("admin"):
         return redirect("/login")
     data = load_products()
-    product_id = int(request.form['id'])
-    new_price = float(request.form['price'])
-    new_stock = int(request.form['stock'])
     for p in data:
-        if p['id'] == product_id:
-            p['price'] = new_price
-            p['stock'] = new_stock
-            break
+        if p["id"] == int(request.form["id"]):
+            p["price"] = float(request.form["price"])
+            p["stock"] = int(request.form["stock"])
     save_products(data)
     return redirect("/admin")
 
@@ -207,8 +196,7 @@ def delete_product():
     if not session.get("admin"):
         return redirect("/login")
     product_id = int(request.form["id"])
-    data = load_products()
-    data = [p for p in data if p["id"] != product_id]
+    data = [p for p in load_products() if p["id"] != product_id]
     save_products(data)
     return redirect("/admin")
 
@@ -216,12 +204,11 @@ def delete_product():
 def delete_order():
     if not session.get("admin"):
         return redirect("/login")
-    order_index = int(request.form.get("index"))
+    order_index = int(request.form["index"])
     orders = load_orders()
     if 0 <= order_index < len(orders):
         orders.pop(order_index)
-    with open('data/orders.json', 'w') as f:
-        json.dump(orders, f, indent=4)
+    save_json("data/orders.json", orders)
     return redirect("/admin")
 
 @app.route("/book_service", methods=["POST"])
@@ -232,22 +219,10 @@ def book_service():
         "phone": request.form["phone"],
         "service": request.form["service"]
     }
-
-    if not os.path.exists('data/bookings.json'):
-        with open('data/bookings.json', 'w') as f:
-            json.dump([], f)
-
-    with open('data/bookings.json') as f:
-        bookings = json.load(f)
-    bookings.append(booking)
-    with open('data/bookings.json', 'w') as f:
-        json.dump(bookings, f, indent=4)
-
-    flash("Your service has been booked!")
+    save_booking(booking)
+    flash("Service booked successfully!")
     return redirect("/")
 
-
-# 🟢 START APP
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
