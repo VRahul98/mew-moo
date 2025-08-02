@@ -29,24 +29,24 @@
   </nav>
 
   <h2>🧾 Orders</h2>
-  <table>
-    <tr><th>Customer</th><th>Email</th><th>Phone</th><th>Items</th><th>Total (₹)</th></tr>
-    {% for o in orders %}
-    <tr>
-      <td>{{ o.customer_name }}</td>
-      <td>{{ o.email }}</td>
-      <td>{{ o.phone }}</td>
-      <td>
-        <ul>
-        {% for i in o.items %}
-          <li>{{ i.name }} × {{ i.quantity }} = ₹{{ i.quantity * i.price }}</li>
-        {% endfor %}
-        </ul>
-      </td>
-      <td>₹{{ o.total }}</td>
-    </tr>
-    {% endfor %}
-  </table>
+<table>
+  <tr><th>Customer</th><th>Email</th><th>Phone</th><th>Items</th><th>Total (₹)</th></tr>
+  {% for o in orders %}
+  <tr>
+    <td>{{ o["customer_name"] }}</td>
+    <td>{{ o["email"] }}</td>
+    <td>{{ o["phone"] }}</td>
+    <td>
+      <ul>
+      {% for i in o["items"] %}
+        <li>{{ i["name"] }} × {{ i["quantity"] }} = ₹{{ i["quantity"] * i["price"] }}</li>
+      {% endfor %}
+      </ul>
+    </td>
+    <td>₹{{ o["total"] }}</td>
+  </tr>
+  {% endfor %}
+</table>
 
   <section class="dashboard-cards">
     <div class="card-summary">
