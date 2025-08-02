@@ -4,6 +4,8 @@ import os
 import smtplib
 from email.message import EmailMessage
 import requests
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'  # Replace this in production
@@ -42,7 +44,7 @@ def save_order(order):
 def send_email(to_email, name, cart, total):
     email = EmailMessage()
     email["Subject"] = "Your Mew & Moo Order Confirmation"
-    email["From"] = "youremail@example.com"
+    email["From"] = "mewmoopetstore@gmail.com"
     email["To"] = to_email
 
     body = f"Hello {name},\n\nThanks for your order from Mew & Moo!\n\n"
@@ -53,7 +55,7 @@ def send_email(to_email, name, cart, total):
     email.set_content(body)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-        smtp.login("mew&moo@gmail.com", "mewmoo2025")
+        smtp.login("mewmoopetstore@gmail.com", "Mew&moo2025")
         smtp.send_message(email)
 
 def send_sms(phone, name, total):
@@ -220,3 +222,13 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+@app.route("/admin")
+def admin():
+    try:
+        if not session.get("admin"):
+            return redirect("/login")
+        items = load_products()
+        orders = load_orders()
+        return render_template("admin.html", products=items, orders=orders)
+    except Exception as e:
+        return f"Error in admin route: {e}"
